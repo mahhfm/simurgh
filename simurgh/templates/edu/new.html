@@ -1,0 +1,52 @@
+{% extends 'edu/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+
+
+<link rel="stylesheet" href="{% static 'css/edu/new.css' %}">
+
+
+{% if StudentForm %}
+<div class="form-group myform mb-5">
+    <form method="POST">{% csrf_token %}
+        {{ StudentForm.as_p }}
+        <input type="submit" value="ایجاد" class="btn btn-primary">
+    </form>
+</div>
+{% endif %}
+
+
+{% if TeacherForm %}
+<div class="form-group myform">
+    <form method="POST">{% csrf_token %}
+        {{ TeacherForm.as_p }}
+        <input type="submit" value="ایجاد" class="btn btn-primary">
+    </form>
+</div>
+{% endif %}
+
+
+
+{% if CourseForm %}
+<div class="form-group myform">
+    <form method="POST">{% csrf_token %}
+        {{ CourseForm.as_p }}
+        <input type="submit" value="ایجاد" class="btn btn-primary">
+    </form>
+</div>
+{% endif %}
+
+
+{% if ClassFrom %}
+<div class="form-group myform">
+    <form method="POST">{% csrf_token %}
+        {{ ClassFrom.as_p }}
+        <input type="submit" value="ایجاد" class="btn btn-primary">
+    </form>
+</div>
+{% endif %}
+
+
+
+{% endblock %}
