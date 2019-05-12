@@ -1,0 +1,39 @@
+{% extends 'edu/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+    <title>حقوق</title>
+<link rel="stylesheet" href="{% static 'css/edu/salary.css' %}">
+
+
+
+{% if form %}
+<div class="form-group myform">
+    <form method="POST">
+        {% csrf_token %}
+
+            {{ form }}
+        <input type="submit" value="محاسبه" class="btn btn-primary">
+    </form>
+</div>
+
+{% elif result %}
+<table>
+    <thead>
+        <th>آی دی</th>
+        <th>نام</th>
+        <th>مدرک</th>
+        <th>سنوات</th>
+        <th>دریافتی</th>
+    </thead>
+    <tr>
+        <td>{{ result.id }}</td>
+        <td>{{ result.full_name }}</td>
+        <td>{{ result.degree }}</td>
+        <td>{{ result.experience }}</td>
+        <td>{{ result.earn }}</td>
+    </tr>
+</table>
+{% endif %}
+
+{% endblock %}

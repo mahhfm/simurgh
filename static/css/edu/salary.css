@@ -1,0 +1,41 @@
+.myform{
+    border: 1px solid #ccc;
+    padding: 30px;
+    border-radius: 4px;
+    margin: 20px;
+}
+
+label{
+    margin-top: 20px;
+}
+
+input[type=text]{
+    display: block;
+}
+
+input[type=password]{
+    display: block;
+}
+
+input[type=submit]{
+    margin-top: 15px;
+}
+
+table, th, td{
+    border:1px solid black;
+    margin: 10px;
+    text-align: center;
+    padding: 10px;
+}
+th{
+    background-color: #428bca;
+    color: white;
+}
+
+td{
+    background-color: antiquewhite;
+}
+
+button{
+    margin-top: 15px;
+}

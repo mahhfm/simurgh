@@ -1,0 +1,95 @@
+.footer {
+   left: 0;
+   bottom: 0;
+   width: 100%;
+   background-color: #101010;
+   padding:10px;
+   color: white;
+   text-align: center;
+   margin-top: 30%;
+}
+
+.footer > p{
+    font-size: 15px;
+}
+
+.navbar {
+  margin-bottom: 0;
+  border-radius: 0;
+}
+
+.row.content {
+  height: 100%;
+}
+
+.sidenav {
+  padding-top: 40px;
+  background-color: #f1f1f1;
+  height: 100%;
+}
+
+.line{
+    color: white;
+}
+
+.form-inline > button {
+    margin-right: 20px;
+}
+
+
+
+
+@media screen and (max-width: 767px) {
+  .sidenav {
+    height: auto;
+    padding: 15px;
+    height: 100%;
+  }
+
+  .row.content {
+    height: auto;
+  }
+}
+
+
+
+.form-inline {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.form-inline label {
+  margin: 5px 10px 5px 0;
+}
+
+.form-inline input {
+  vertical-align: middle;
+  margin: 5px 10px 5px 0;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+}
+
+.form-inline button {
+  padding: 10px 20px;
+  background-color: dodgerblue;
+  border: 1px solid #ddd;
+  color: white;
+  cursor: pointer;
+}
+
+.form-inline button:hover {
+  background-color: royalblue;
+}
+
+@media (max-width: 800px) {
+  .form-inline input {
+    margin: 10px 0;
+  }
+
+  .form-inline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

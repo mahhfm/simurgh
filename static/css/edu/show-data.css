@@ -1,0 +1,17 @@
+table, th, td{
+    border:1px solid black;
+    margin: 10px;
+    text-align: center;
+    padding: 10px;
+}
+th{
+    background-color: #428bca;
+    color: white;
+}
+
+td{
+    background-color: antiquewhite;
+}
+
+[data-href] {
+    cursor: pointer;

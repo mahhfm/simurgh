@@ -1,0 +1,11 @@
+{% extends 'edu/base.html' %}
+
+{% block content %}
+
+<form method="POST" action="">
+    {% csrf_token %}
+    <p>آیا از حذف {{ object }} مطمین هستید؟</p>
+    <input type="submit" class="btn btn-danger" value="تایید">
+</form>
+{% endblock %}
+

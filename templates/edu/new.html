@@ -1,0 +1,22 @@
+{% extends 'edu/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/edu/new.css' %}">
+<div class="form-group myform">
+    {% if form %}
+    <form method="POST">
+        {% csrf_token %}
+
+
+        {{ form.as_p }}
+
+
+        <input type="submit" value="ایجاد" class="btn btn-primary">
+    </form>
+    {% elif create_message %}
+        <h1>{{create_message}}</h1>
+        {% endif %}
+</div>
+{% endblock %}

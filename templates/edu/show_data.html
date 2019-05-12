@@ -1,0 +1,126 @@
+{% extends 'edu/base.html' %}
+{% load staticfiles %}
+
+
+{% block content %}
+
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/edu/show-data.css' %}">
+<center>
+    {% if Erorrs %}
+        <h1>{{Erorrs}}</h1>
+    {% endif %}
+    {% if update_message %}
+    <h1 class="glyphicon glyphicon-ok-sign	">{{ update_message}}</h1>
+{% endif %}
+{% if object %}
+
+    <h3>{{ object.user.first_name }} {{ object.user.last_name }}</h3>
+    <p>{{ object.user.email }}</p>
+    <p>{{ object.sid }}</p>
+    <p>{{ object }}</p>
+
+
+    {% endif  %}
+
+
+
+    {% if students %}
+    <table class="table table-striped table-hover">
+        <thead>
+        <th>آي دی</th>
+        <th>نام</th>
+        <th>نام خانوادگی</th>
+        <th>شماره دانش آموزی</th>
+        <th>کلاس</th>
+        <th>ایمیل</th>
+        <th>ویرایش</th>
+        <th colspan="2">ویرایش  /  حذف</th>
+        </thead>
+        {% for student in students %}
+        <tr role="button" data-href="{% url 'student-view' student.id %}">
+            <td>{{ student.id }}</td>
+            <td>{{ student.user.first_name }}</td>
+            <td>{{ student.user.last_name }}</td>
+            <td>{{ student.sid }}</td>
+            <td>{{ student.classroom }}</td>
+            <td>{{ student.user.email }}</td>
+            <td><a class="glyphicon glyphicon-pencil" href="{%  url 'update-student' student.id %}"></a></td>
+            <td ><a class="	glyphicon glyphicon-remove" href="{%  url 'delete-student' student.id %}"></a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    {% if teachers %}
+    <table class="table table-striped table-hover" style="text-aligm:center;">
+        <thead>
+        <th>آی دی</th>
+        <th>نام</th>
+        <th>نام خانوادگی</th>
+        <th>کد پرسنلی</th>
+        <th>سابقه</th>
+        <th>ایمیل</th>
+        <th>کلاس ها</th>
+        <th colspan="2">ویرایش  /  حذف</th>
+        </thead>
+        {% for teacher in teachers %}
+        <tr role="button" data-href="{% url 'teacher-view' teacher.id %}">
+            <td>{{ teacher.id }}</td>
+            <td>{{ teacher.user.first_name }}</td>
+            <td>{{ teacher.user.last_name }}</td>
+            <td>{{ teacher.tid }}</td>
+            <td>{{ teacher.experience }}</td>
+            <td>{{ teacher.user.email }}</td>
+            <td>{{ teacher.classes }}</td>
+            <td ><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-teacher' teacher.id %}"></a></td>
+            <td ><a class="	glyphicon glyphicon-remove" href="{%  url 'delete-teacher' teacher.id %}"></a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    {% if classrooms %}
+    <table class="table table-striped table-hover">
+        <thead>
+            <th>آی دی</th>
+            <th> نام کلاس</th>
+            <th colspan="2">ویرایش  /  حذف</th>
+        </thead>
+        {% for class in classrooms %}
+            <tr role="button" data-href="{% url 'classroom-view' class.id %}">
+                <td>{{ class.id }}</td>
+                <td>{{ class }}</td>
+                <td ><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-classroom' class.id %}"></a></td>
+                <td ><a class="	glyphicon glyphicon-remove" href="{%  url 'delete-classroom' class.id %}"></a></td>
+            </tr>
+        {% endfor %}
+
+    </table>
+    {% endif %}
+
+    {% if courses %}
+    <table class="table table-striped table-hover">
+        <thead>
+        <th>آی دی</th>
+        <th>نام درس</th>
+        <th colspan="2">ویرایش  /  حذف</th>
+        </thead>
+        {% for course in courses %}
+        <tr role="button" data-href="{% url 'course-view' course.id %}">
+            <td>{{ course.id }}</td>
+            <td>{{ course.course_name }}</td>
+            <td ><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-course' course.id %}"></a></td>
+            <td ><a class="	glyphicon glyphicon-remove" href="{%  url 'delete-course' course.id %}"></a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+</center>
+
+
+<script src="{% static 'js/edu/show-data.js' %}"></script>
+
+
+{% endblock %}
