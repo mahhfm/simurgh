@@ -33,6 +33,7 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.contrib.auth.views import LoginView
 
+
 def home(request):
     return render(request, 'edu/base.html')
 
@@ -138,6 +139,11 @@ class ShowDetail(DetailView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
+        content_type = ContentType.objects.get_for_model(Student)
+        permission = Permission.objects.create(codename='view_student',
+                                            name='View Students',
+                                            content_type=content_type)
+
         return super().dispatch(*args, **kwargs)
 
     def get_queryset(self):

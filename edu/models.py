@@ -6,6 +6,7 @@ from django.utils import timezone
 import persian
 
 
+
 # an abstract class for all models
 
 class Origin(models.Model):
@@ -128,6 +129,8 @@ class Student(Origin):
 
     def __str__(self):
         return self.user.first_name + " " + str(persian.enToPersianNumb(self.sid))
+    class Meta:
+        pass
 
 
 class Register(models.Model):

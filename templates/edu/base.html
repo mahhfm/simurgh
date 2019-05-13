@@ -16,6 +16,7 @@
 </head>
 
 <body>
+
 <nav class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -48,19 +49,34 @@
 <div class="container-fluid text-center">
     <div class="row content">
         <div class="col-sm-2 sidenav">
+        {% if  user.is_authenticated %}
+        {% if  perms.edu.teacher_management %}
             <p><a href="{% url 'student-signup' %}"> دانش آموز جدید</a></p>
             <p><a href="{% url 'new-teacher' %}"> معلم جدید</a></p>
             <p><a href="{% url 'new-course' %}"> درس جدید</a></p>
             <p><a href="{% url 'new-class' %}"> کلاس جدید</a></p>
+
+        {% endif %}
+
+        {% if  perms.edu.student_management %}
+        <p><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-student' user.id %}">ویرایش اطلاعات دانش آموز  </a><p>
+        {% endif %}
+        {% if  perms.edu.teacher_management %}
+        <p><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-teacher' user.id %}">  ویرایش اطلاعات معلم  </a><p>
+        {% endif %}
+        {% endif %}
         </div>
         <div class="col-sm-8 text-right main">
 
             <h1>خوش آمدید</h1>
             <h3>سیمرغ سامانه مدیریت مدارس</h3>
+            {% if  user.is_authenticated %}
+            {% if  perms.edu.teacher_management %}
             <form action="{% url 'show-data' %}" method="GET">
                 <div class="btn-group p-3">
                     <a href="">
                         <button type="submit" class="btn btn-primary" name="teacher">معلمین</button>
+
                     </a>
                     <a href="">
                         <button type="submit" class="btn btn-primary" name="course">دروس</button>
@@ -73,6 +89,8 @@
                     </a>
                 </div>
             </form>
+            {% endif %}
+            {% endif %}
             <hr>
 
             {% block content %}
@@ -110,11 +128,11 @@
   <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
   <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
   <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
-  <script src="{% static 'edu/js/sb-admin-2.min.js' %}"></script>
+  <script src="{% static 'js/edu/sb-admin-2.min.js' %}"></script>
   <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
   <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
   <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
-  <script src="{% static 'edu/js/demo/datatables-demo.js' %}"></script>
+  <script src="{% static 'js/edu/demo/datatables-demo.js' %}"></script>
 </body>
 
 </html>

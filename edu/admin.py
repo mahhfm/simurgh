@@ -27,3 +27,5 @@ admin.site.register(models.LevelField)
 admin.site.register(models.StudentCourse)
 admin.site.register(models.Register)
 admin.site.register(models.TCC)
+
+
