@@ -7,7 +7,7 @@ urlpatterns = [
     url(r'^apishow/$', views.api_show, name="api-show"),
 
 
-    url(r'^data/$', views.ShowData.as_view(), name="show-data"),
+    url(r'^data/', views.ShowData.as_view(), name="show-data"),
     url(r'^student/$', views.ModelCreateView.as_view(), name="student-signup"),
     url(r'^teacher/$', views.ModelCreateView.as_view(), name="new-teacher"),
     url(r'^course/$', views.ModelCreateView.as_view(), name="new-course"),

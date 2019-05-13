@@ -78,55 +78,47 @@ class ModelCreateView(CreateView):
 
 class ShowData(ListView):
     template_name = 'edu/show_data.html'
-    # queryset = Student.objects.all()
     model = Student
 
     def get_context_data(self, **kwargs):
-
         context = super(ShowData, self).get_context_data(**kwargs)
-        # if 'student' in self.request.GET:
-        #     self.model = Student
-        #     context.update({
-        #         'students': Student.objects.all(),
-        #     })
-        # elif 'teacher' in self.request.GET:
-        #     self.model = Teacher
-        #     context.update({
-        #         'teachers': Teacher.objects.all(),
-        #     })
-        # elif 'course' in self.request.GET:
-        #     self.model = Course
-        #     context.update({
-        #         'courses': Course.objects.all(),
-        #     })
-        # elif 'classroom' in self.request.GET:
-        #     self.model = ClassRoom
-        #     context.update({
-        #         'classrooms': ClassRoom.objects.all(),
-        #     })
-        #
-        # return context
-        # print(self.request.GET.first())
-        try:
-            model_name = [key for key in dict(self.request.GET)][0]
-            print(model_name)
-            format_request = {
-                'student': Student,
-                'teacher': Teacher,
-                'classroom': ClassRoom,
-                'course': Course,
+        format_request = {
+            'student': Student,
+             'teacher': Teacher,
+             'classroom': ClassRoom,
+             'course': Course,
             }
-            self.model = format_request[model_name]
-            # for objc in self.model.objects.all():
-            context.update({
-                str(model_name) + 's': self.model.objects.all(),
-                # 'classroom': ",".join(objc.classroom.all().__str__()),
-            })
+        search_request = {
+            'teacher': TeacherSearchForm,
+            'student': StudentSearchForm,
+            'classroom': None,
+             'course': None,
+
+            }
+        try:
+            if self.request.GET.get('model_name'):
+                model_name = self.request.GET.get('model_name')
+                first_name = self.request.GET.get('first_name')
+                self.model = format_request[model_name]
+                context.update({
+                str(model_name) + 's': self.model.objects.filter(Q(user__username__icontains= first_name)),
+                'search': search_request[model_name],
+                 })
+            else:
+                model_name = [key for key in dict(self.request.GET)][0]
+                self.model = format_request[model_name]             
+                context.update({
+                    str(model_name) + 's': self.model.objects.all(),
+                    'search': search_request[model_name] ,
+                })
+
         except IndexError:
             context.update({
-                'Errors': "There is No banana",
+                'Errors': "There is No Records",
             })
         return context
+
+
 
 
 class ShowDetail(DetailView):

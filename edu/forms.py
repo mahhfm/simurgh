@@ -3,6 +3,19 @@ from .models import Student, Teacher, ClassRoom, Course
 from django.contrib.auth.models import User
 
 
+
+class TeacherSearchForm(forms.Form):
+    first_name = forms.CharField(max_length=20)
+    last_name = forms.CharField(max_length=20,required=False)
+    education_degree = forms.CharField(max_length=20, required=False)
+    model_name = forms.CharField(max_length=20)
+
+class StudentSearchForm(forms.Form):
+    first_name = forms.CharField(max_length=20)
+    last_name = forms.CharField(max_length=20,required=False)
+    age = forms.CharField(max_length=20, required=False)
+    model_name = forms.CharField(max_length=20)
+
 class TeacherForm(forms.ModelForm):
     class Meta:
         model = Teacher
