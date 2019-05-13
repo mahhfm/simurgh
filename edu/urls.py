@@ -1,5 +1,6 @@
 from django.conf.urls import url, include
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
 
@@ -31,6 +32,8 @@ urlpatterns = [
     url(r'^classroom/delete/(?P<pk>[0-9]+)/$', views.DeleteModelView.as_view(), name="delete-classroom"),
     url(r'^teacher/delete/(?P<pk>[0-9]+)/$', views.DeleteModelView.as_view(), name="delete-teacher"),
 
+    url(r'^login/',  views.LoginViewClass.as_view(), name="user-login"),
+    url('^logout/', auth_views.LogoutView.as_view(template_name="edu/login.html"), name="user-logout"),
 
     url(r'^salary/$', views.salary, name='salary'),
 ]

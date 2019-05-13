@@ -30,7 +30,8 @@ from edu.serializers import StudentSerializer
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
-
+from django.utils.decorators import method_decorator
+from django.contrib.auth.views import LoginView
 
 def home(request):
     return render(request, 'edu/base.html')
@@ -41,6 +42,11 @@ class ModelCreateView(CreateView):
     form_class = StudentForm
     template_name = 'edu/new.html'
     success_url = '/student/'
+
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(ModelCreateView, self).dispatch(*args, **kwargs)
 
     def sid(self):
         code = ''
@@ -80,6 +86,11 @@ class ShowData(ListView):
     template_name = 'edu/show_data.html'
     model = Student
 
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+    
     def get_context_data(self, **kwargs):
         context = super(ShowData, self).get_context_data(**kwargs)
         format_request = {
@@ -106,6 +117,7 @@ class ShowData(ListView):
                  })
             else:
                 model_name = [key for key in dict(self.request.GET)][0]
+
                 self.model = format_request[model_name]             
                 context.update({
                     str(model_name) + 's': self.model.objects.all(),
@@ -123,6 +135,10 @@ class ShowData(ListView):
 
 class ShowDetail(DetailView):
     template_name = 'edu/show_data.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     def get_queryset(self):
         model_name = self.request.path[1: self.request.path.index('/', 1)]
@@ -142,6 +158,10 @@ class ModelUpdateView(UpdateView):
     fields = "__all__"
     template_name = "edu/update.html"
     path_name = ''
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     def get_queryset(self):
         list_model = {
@@ -168,6 +188,10 @@ class DeleteModelView(DeleteView):
     success_url = ''
     path_name = ''
 
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
     def get_queryset(self):
         list_model = {
             'student': Student,
@@ -183,7 +207,8 @@ class DeleteModelView(DeleteView):
 
 
 
-
+class LoginViewClass(LoginView):
+    template_name="edu/login.html"
 
 
 

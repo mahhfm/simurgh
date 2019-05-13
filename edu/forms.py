@@ -8,13 +8,13 @@ class TeacherSearchForm(forms.Form):
     first_name = forms.CharField(max_length=20)
     last_name = forms.CharField(max_length=20,required=False)
     education_degree = forms.CharField(max_length=20, required=False)
-    model_name = forms.CharField(max_length=20)
+    model_name = forms.CharField(max_length=20,widget=forms.HiddenInput(),initial='teacher')
 
 class StudentSearchForm(forms.Form):
     first_name = forms.CharField(max_length=20)
     last_name = forms.CharField(max_length=20,required=False)
     age = forms.CharField(max_length=20, required=False)
-    model_name = forms.CharField(max_length=20)
+    model_name = forms.CharField(max_length=20,widget=forms.HiddenInput(),initial='student')
 
 class TeacherForm(forms.ModelForm):
     class Meta:

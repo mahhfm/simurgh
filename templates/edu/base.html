@@ -7,6 +7,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'css/edu/base.css' %}">
+    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="{% static 'css/edu/sb-admin-2.min.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
@@ -49,7 +52,6 @@
             <p><a href="{% url 'new-teacher' %}"> معلم جدید</a></p>
             <p><a href="{% url 'new-course' %}"> درس جدید</a></p>
             <p><a href="{% url 'new-class' %}"> کلاس جدید</a></p>
-            <p><a href="{% url 'salary' %}">محاسبه حقوق معلمین</a></p>
         </div>
         <div class="col-sm-8 text-right main">
 
@@ -86,44 +88,11 @@
 
         </div>
 
-        <div class="col-sm-2 sidenav">
+ 
             <p class="color-blue"> {{ date }} </p>
-            <hr>
-            <br>
-            <div class="well">
-                <p>تبلیغ</p>
-            </div>
-            <div class="well">
-                <p>تبلیغ</p>
-            </div>
-            {% if classrooms %}
-            <h4>لیست کلاس ها :</h4>
-            {% for class in classrooms %}
-            <div>
-                <p>{{ class }}</p>
-            </div>
-            {% endfor %}
-            {% endif %}
 
 
-            {% if teachers %}
-            <h4>لیست معلمین :</h4>
-            {% for teacher in teachers %}
-            <div>
-                <p>{{ teacher.name }} {{ teacher.family }}</p>
-            </div>
-            {% endfor %}
-            {% endif %}
 
-
-            {% if courses %}
-            <h4>لیست دروس :</h4>
-            {% for course in courses %}
-            <div>
-                <p>{{ course }}</p>
-            </div>
-            {% endfor %}
-            {% endif %}
 
 
         </div>
@@ -138,22 +107,14 @@
 </div>
 
 
-<br>
-<hr>
-<div class="footer text-center">
-    <!--    <img src="{% static 'icon/Logo.png' %}" alt="icon" height="40px" width="40px">-->
-    <p><a href="#" style="color:white;">تماس با ما</a></p>
-    <hr class="line">
-    <form class="form-inline">
-        <label for="name">نام:</label>
-        <input type="text" id="name" placeholder="نام و نام خانوادگی" name="name">
-        <label for="email">ایمیل:</label>
-        <input type="email" id="email" placeholder="ایمیل" name="email">
-        <label for="text">متن:</label>
-        <textarea rows="3" cols="50" id="text" placeholder="متن" name="text"></textarea>
-        <button type="submit" class="btn btn-primary m-5">ارسال</button>
-    </form>
-</div>
+  <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+  <script src="{% static 'edu/js/sb-admin-2.min.js' %}"></script>
+  <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+  <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+  <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+  <script src="{% static 'edu/js/demo/datatables-demo.js' %}"></script>
 </body>
 
 </html>
