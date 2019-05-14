@@ -1,8 +1,7 @@
 from django import forms
 from .models import Student, Teacher, ClassRoom, Course
 from django.contrib.auth.models import User
-
-
+from django.contrib.auth.models import Group
 
 class TeacherSearchForm(forms.Form):
     first_name = forms.CharField(max_length=20)
@@ -17,6 +16,12 @@ class StudentSearchForm(forms.Form):
     model_name = forms.CharField(max_length=20,widget=forms.HiddenInput(),initial='student')
 
 class TeacherForm(forms.ModelForm):
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        user = self.cleaned_data['user']
+        group = Group.objects.get(name='teacher_management')
+        user.groups.add(group)
+        return cleaned_data     
     class Meta:
         model = Teacher
         fields = '__all__'
@@ -35,9 +40,18 @@ class CourseForm(forms.ModelForm):
 
 
 class StudentForm(forms.ModelForm):
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        user = self.cleaned_data['user']
+        group = Group.objects.get(name='student_management')
+        user.groups.add(group)
+
+        return cleaned_data 
+
     class Meta:
         model = Student
         fields = '__all__'
+
 
 
 class Salary(forms.Form):
