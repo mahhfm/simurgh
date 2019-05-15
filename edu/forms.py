@@ -1,16 +1,23 @@
 from django import forms
-from .models import Student, Teacher, ClassRoom, Course
+from .models import Student, Teacher, ClassRoom, Course, Register
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 
 class TeacherSearchForm(forms.Form):
-    first_name = forms.CharField(max_length=20)
+    BACHELOR, MA, PHD, ALL  = 'ba', 'ma', 'phd', 'all'
+    DEGREE_CHOICES = (
+        (ALL, "همه"),
+        (BACHELOR, "لیسانس"),
+        (MA, "فوق لیسانس"),
+        (PHD, "دکتری"),
+    )
+    first_name = forms.CharField(max_length=20,required=False)
     last_name = forms.CharField(max_length=20,required=False)
-    education_degree = forms.CharField(max_length=20, required=False)
+    education_degree = forms.ChoiceField( required=False,choices=DEGREE_CHOICES,initial='')
     model_name = forms.CharField(max_length=20,widget=forms.HiddenInput(),initial='teacher')
 
 class StudentSearchForm(forms.Form):
-    first_name = forms.CharField(max_length=20)
+    first_name = forms.CharField(max_length=20,required=False)
     last_name = forms.CharField(max_length=20,required=False)
     age = forms.CharField(max_length=20, required=False)
     model_name = forms.CharField(max_length=20,widget=forms.HiddenInput(),initial='student')
@@ -37,7 +44,10 @@ class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
         fields = '__all__'
-
+class RegisterForm(forms.ModelForm):
+    class Meta:
+        model = Register
+        fields = '__all__'
 
 class StudentForm(forms.ModelForm):
     def clean(self):

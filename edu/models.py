@@ -128,7 +128,7 @@ class Student(Origin):
     courses = models.ManyToManyField("Course", through="StudentCourse")
 
     def __str__(self):
-        return self.user.first_name + " " + str(persian.enToPersianNumb(self.sid))
+        return self.user.first_name + " " + self.user.last_name + " " + str(persian.enToPersianNumb(self.sid))
     class Meta:
         pass
 

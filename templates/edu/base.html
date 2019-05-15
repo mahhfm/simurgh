@@ -8,7 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'css/edu/base.css' %}">
     <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
     <link href="{% static 'css/edu/sb-admin-2.min.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -17,96 +19,151 @@
 
 <body>
 
-<nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="{% url 'home' %}">سیمرغ</a>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{% url 'home' %}">سیمرغ</a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="{% url 'home' %}">خانه</a></li>
+                    <!--                &lt;!&ndash; <li><a href="#">درباره</a></li>-->
+                    <!--                <li><a href="#">Projects</a></li>-->
+                    <!--                <li><a href="#">Contact</a></li> &ndash;&gt;-->
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if user.is_authenticated %}
+                    <li><a href="{% url 'home' %}"><span class=""></span>{{ user.first_name }} عزیز, خوش آمدید </a></li>
+                    <li><a href="{% url 'user-logout' %}"><span class="glyphicon glyphicon-log-in"></span>خروج</a></li>
+                    {% else %}
+                    <li><a href="{% url 'user-login' %}"><span class="glyphicon glyphicon-log-in"></span>ورود</a></li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-        <div class="collapse navbar-collapse" id="myNavbar">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="{% url 'home' %}">خانه</a></li>
-<!--                &lt;!&ndash; <li><a href="#">درباره</a></li>-->
-<!--                <li><a href="#">Projects</a></li>-->
-<!--                <li><a href="#">Contact</a></li> &ndash;&gt;-->
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                {% if user.is_authenticated %}
-                <li><a href="{% url 'home' %}"><span class=""></span>{{ user.first_name }}  عزیز, خوش آمدید </a></li>
-                <li><a href="{% url 'user-logout' %}"><span class="glyphicon glyphicon-log-in"></span>خروج</a></li>
-                {% else %}
-                <li><a href="{% url 'user-login' %}"><span class="glyphicon glyphicon-log-in"></span>ورود</a></li>
+    </nav>
+
+    <div class="container-fluid text-center">
+        <div class="row content">
+            <div class="col-sm-2 sidenav">
+                {% if  user.is_authenticated %}
+                {% if  perms.edu.teacher_management %}
+                <a href="{% url 'student-signup' %}" class="btn btn-secondary ">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                    <span class="text"> دانش آموز جدید</span>
+                </a>
+                <br>
+                <br>
+                {% if  perms.edu.manager_management %}
+                <a href="{% url 'new-teacher' %}" class="btn btn-secondary ">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                    <span class="text"> معلم جدید</span>
+                </a>
                 {% endif %}
-            </ul>
-        </div>
-    </div>
-</nav>
+                <br>
+                <br>
+                <a href="{% url 'new-course' %}" class="btn btn-secondary ">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                    <span class="text"> درس جدید</span>
+                </a>
+                <br>
+                <br>
+                <a href="{% url 'new-class' %}" class="btn btn-secondary ">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                    <span class="text"> کلاس جدید</span>
+                </a>
+                <br>
+                <br>
+                <a href="{% url 'new-class' %}" class="btn btn-secondary ">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                    <span class="text">ثبت نام جدید</span>
+                </a>
+                <br>
+                <br>
+                {% endif %}
 
-<div class="container-fluid text-center">
-    <div class="row content">
-        <div class="col-sm-2 sidenav">
-        {% if  user.is_authenticated %}
-        {% if  perms.edu.teacher_management %}
-            <p><a href="{% url 'student-signup' %}"> دانش آموز جدید</a></p>
-            <p><a href="{% url 'new-teacher' %}"> معلم جدید</a></p>
-            <p><a href="{% url 'new-course' %}"> درس جدید</a></p>
-            <p><a href="{% url 'new-class' %}"> کلاس جدید</a></p>
+                {% if  perms.edu.student_management %}
+                <a href="{%  url 'update-student' user.id %}" class="btn btn-secondary ">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                    <span class="text">ویرایش اطلاعات دانش آموز </span>
+                </a>
+                <br>
+                <br>
+                {% endif %}
+                {% if  perms.edu.teacher_management %}
+                <a href="{%  url 'update-teacher' user.id %}" class="btn btn-secondary ">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                    <span class="text"> ویرایش اطلاعات معلم </span>
+                </a>
+                {% endif %}
+                {% endif %}
+            </div>
+            <div class="col-sm-8 text-right main">
 
-        {% endif %}
+                <h1>خوش آمدید</h1>
+                <h3>سیمرغ سامانه مدیریت مدارس</h3>
+                {% if  user.is_authenticated %}
+                {% if  perms.edu.teacher_management %}
+                <form action="{% url 'show-data' %}" method="GET">
+                    <div class="btn-group p-3">
+                    {% if  perms.edu.manager_management %}
+                        <a href="">
+                            <button type="submit" class="btn btn-primary" name="teacher">معلمین</button>
 
-        {% if  perms.edu.student_management %}
-        <p><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-student' user.id %}">ویرایش اطلاعات دانش آموز  </a><p>
-        {% endif %}
-        {% if  perms.edu.teacher_management %}
-        <p><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-teacher' user.id %}">  ویرایش اطلاعات معلم  </a><p>
-        {% endif %}
-        {% endif %}
-        </div>
-        <div class="col-sm-8 text-right main">
+                        </a>
+                    {% endif %}
+                        <a href="">
+                            <button type="submit" class="btn btn-primary" name="course">دروس</button>
+                        </a>
+                        <a href="">
+                            <button type="submit" class="btn btn-primary" name="student">دانش آموزان</button>
+                        </a>
+                        <a href="">
+                            <button type="submit" class="btn btn-primary" name="classroom">کلاس ها</button>
+                        </a>
+                        <a href="">
+                            <button type="submit" class="btn btn-primary" name="register">ثبت نام ها</button>
+                        </a>
+                    </div>
 
-            <h1>خوش آمدید</h1>
-            <h3>سیمرغ سامانه مدیریت مدارس</h3>
-            {% if  user.is_authenticated %}
-            {% if  perms.edu.teacher_management %}
-            <form action="{% url 'show-data' %}" method="GET">
-                <div class="btn-group p-3">
-                    <a href="">
-                        <button type="submit" class="btn btn-primary" name="teacher">معلمین</button>
+                </form>
+                {% endif %}
+                {% endif %}
+                <hr>
 
-                    </a>
-                    <a href="">
-                        <button type="submit" class="btn btn-primary" name="course">دروس</button>
-                    </a>
-                    <a href="">
-                        <button type="submit" class="btn btn-primary" name="student">دانش آموزان</button>
-                    </a>
-                    <a href="">
-                        <button type="submit" class="btn btn-primary" name="classroom">کلاس ها</button>
-                    </a>
-                </div>
-            </form>
-            {% endif %}
-            {% endif %}
-            <hr>
+                {% block content %}
 
-            {% block content %}
+                {% if msg %}
+                <!--                    message of create a new object-->
+                {{ msg }}
 
-            {% if msg %}
-            <!--                    message of create a new object-->
-            {{ msg }}
+                {% endif %}
 
-            {% endif %}
-
-            {% endblock %}
+                {% endblock %}
 
 
-        </div>
+            </div>
 
- 
+
             <p class="color-blue"> {{ date }} </p>
 
 
@@ -115,24 +172,24 @@
 
         </div>
     </div>
-</div>
+    </div>
 
 
-<div class="col-sm-12 main-text">
-    <hr>
-    <br>
-  
-</div>
+    <div class="col-sm-12 main-text">
+        <hr>
+        <br>
+
+    </div>
 
 
-  <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
-  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-  <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
-  <script src="{% static 'js/edu/sb-admin-2.min.js' %}"></script>
-  <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
-  <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
-  <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
-  <script src="{% static 'js/edu/demo/datatables-demo.js' %}"></script>
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'js/edu/sb-admin-2.min.js' %}"></script>
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'js/edu/demo/datatables-demo.js' %}"></script>
 </body>
 
 </html>

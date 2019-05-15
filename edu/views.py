@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import Teacher, ClassRoom, Student, Course
+from .models import Teacher, ClassRoom, Student, Course, Register
 from django.urls import reverse_lazy
 from .forms import *
 from django.http import HttpResponseRedirect, HttpResponse
@@ -77,7 +77,8 @@ class ModelCreateView(CreateView):
             'student': StudentForm,
             'teacher': TeacherForm,
             'classroom': ClassRoomForm,
-            'course': CourseForm, }
+            'course': CourseForm,
+            'register':Register, }
 
         form_class = form_request[self.request.path.strip('/')]
         return form_class(**self.get_form_kwargs())
@@ -99,21 +100,32 @@ class ShowData(ListView):
              'teacher': Teacher,
              'classroom': ClassRoom,
              'course': Course,
+             'register':Register,
             }
         search_request = {
             'teacher': TeacherSearchForm,
             'student': StudentSearchForm,
             'classroom': None,
              'course': None,
+             'register':None,
 
             }
         try:
             if self.request.GET.get('model_name'):
                 model_name = self.request.GET.get('model_name')
                 first_name = self.request.GET.get('first_name')
+                last_name = self.request.GET.get('last_name')
+                if 'teacher' in model_name :
+                    education_degree = self.request.GET.get('education_degree')
+                    education_degree=Q(education_degree= education_degree)
+                    if  self.request.GET.get('education_degree') == 'all':
+                        education_degree= ~Q()
+                else:
+                    education_degree = None
+                print(education_degree)
                 self.model = format_request[model_name]
                 context.update({
-                str(model_name) + 's': self.model.objects.filter(Q(user__username__icontains= first_name)),
+                str(model_name) + 's': self.model.objects.filter(Q(user__first_name__icontains= first_name) & Q(user__last_name__icontains= last_name) &  education_degree ),
                 'search': search_request[model_name],
                  })
             else:
@@ -139,10 +151,6 @@ class ShowDetail(DetailView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        content_type = ContentType.objects.get_for_model(Student)
-        permission = Permission.objects.create(codename='view_student',
-                                            name='View Students',
-                                            content_type=content_type)
 
         return super().dispatch(*args, **kwargs)
 
@@ -153,6 +161,7 @@ class ShowDetail(DetailView):
             'teacher': Teacher,
             'course': Course,
             'classroom': ClassRoom,
+            'register':Register,
         }
 
         self.model = format_request[model_name]
@@ -174,7 +183,8 @@ class ModelUpdateView(UpdateView):
             'student': Student,
             'teacher': Teacher,
             'classroom': ClassRoom,
-            'course': Course, }
+            'course': Course,
+            'register':Register, }
         self.model = list_model[self.request.path[1:self.request.path.index('/', 1)]]
         self.path_name = self.request.path[1:self.request.path.index('/', 1)]
         queryset = super(ModelUpdateView, self).get_queryset()
@@ -203,7 +213,8 @@ class DeleteModelView(DeleteView):
             'student': Student,
             'teacher': Teacher,
             'classroom': ClassRoom,
-            'course': Course, }
+            'course': Course,
+            'register':Register, }
         self.model = list_model[self.request.path[1:self.request.path.index('/', 1)]]
         self.success_url = '/data/?' + self.request.path[1:self.request.path.index('/', 1)] + '='
         self.path_name = self.request.path[1:self.request.path.index('/', 1)]
