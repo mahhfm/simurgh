@@ -59,7 +59,7 @@
                         <td>{{ student.user.first_name }}</td>
                         <td>{{ student.user.last_name }}</td>
                         <td>{{ student.sid }}</td>
-                        <td>{{ student.classroom }}</td>
+                        <td>{{ student.classroom.level_field }}  {{ student.classroom.branch }} </td>
                         <td>{{ student.user.email }}</td>
                         <td><a class="fas fa-info-circle" href="{% url 'student-view' student.id %}"></a></td>
                           {% if  perms.edu.manager_management %}

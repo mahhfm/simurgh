@@ -19,7 +19,6 @@ class TeacherSearchForm(forms.Form):
 class StudentSearchForm(forms.Form):
     first_name = forms.CharField(max_length=20,required=False)
     last_name = forms.CharField(max_length=20,required=False)
-    age = forms.CharField(max_length=20, required=False)
     model_name = forms.CharField(max_length=20,widget=forms.HiddenInput(),initial='student')
 
 class TeacherForm(forms.ModelForm):
@@ -48,6 +47,7 @@ class RegisterForm(forms.ModelForm):
     class Meta:
         model = Register
         fields = '__all__'
+        # fields=['student','classroom','active']
 
 class StudentForm(forms.ModelForm):
     def clean(self):

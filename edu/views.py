@@ -73,14 +73,16 @@ class ModelCreateView(CreateView):
         # return super(StudentCreateView, self).form_valid(form)
 
     def get_form(self, form_class=None):
+        print(self.request)
         form_request = {
             'student': StudentForm,
             'teacher': TeacherForm,
             'classroom': ClassRoomForm,
             'course': CourseForm,
-            'register':Register, }
+            'register':RegisterForm, }
 
         form_class = form_request[self.request.path.strip('/')]
+        print(form_class)
         return form_class(**self.get_form_kwargs())
 
 
