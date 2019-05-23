@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import Teacher, ClassRoom, Student, Course, Register
+from .models import Teacher, ClassRoom, Student, Course, Register, TCC
 from django.urls import reverse_lazy
 from .forms import *
 from django.http import HttpResponseRedirect, HttpResponse
@@ -47,7 +47,9 @@ class ModelCreateView(CreateView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(ModelCreateView, self).dispatch(*args, **kwargs)
+        if self.request.user.groups.all().first().name == 'manager_management':
+            return super().dispatch(*args, **kwargs)
+        return render(self.request, 'edu/not_allowed.html')
 
     def sid(self):
         code = ''
@@ -58,10 +60,41 @@ class ModelCreateView(CreateView):
         return code
 
     def form_valid(self, form):
-        add_student = form.save(commit=False)
-        add_student.user = self.request.user
-        add_student.sid = self.sid()
-        add_student.save()
+        if  'student' in self.request.path :
+            data = form.cleaned_data
+            new_user = User.objects.create(
+                username=data.pop('username'),
+                first_name=data.pop('first_name'),
+                last_name=data.pop('last_name'),
+                email=data.pop('email'),
+                password=make_password(data.pop('password')),
+            )
+            data.pop('re_password'),
+            new_student = form.save(commit=False)
+            new_student.user = new_user
+            new_student.sid = get_student_code()
+            new_student.save()
+            group = Group.objects.get(name='student_management')
+            group.user_set.add(new_student.user)
+            group.save()
+        if 'teacher' in self.request.path:
+            data = form.cleaned_data
+            new_user = User.objects.create(
+                username=data.pop('username'),
+                first_name=data.pop('first_name'),
+                last_name=data.pop('last_name'),
+                email=data.pop('email'),
+                password=make_password(data.pop('password')),
+            )
+            data.pop('re_password'),
+            new_student = form.save(commit=False)
+            new_student.user = new_user
+            new_student.tid = get_student_code()
+            new_student.save()
+            group = Group.objects.get(name='teacher_management')
+            group.user_set.add(new_student.user)
+            group.save()
+        super().form_valid(form)
         return render(self.request, self.template_name, context={'create_message': 'با موفقیت اضافه شد '})
         # return HttpResponseRedirect(self.get_success_url())
         # return super().form_valid(form)
@@ -79,7 +112,8 @@ class ModelCreateView(CreateView):
             'teacher': TeacherForm,
             'classroom': ClassRoomForm,
             'course': CourseForm,
-            'register':RegisterForm, }
+            'register':RegisterForm,
+            'tcc': TCCForm, }
 
         form_class = form_request[self.request.path.strip('/')]
         print(form_class)
@@ -93,7 +127,9 @@ class ShowData(ListView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+        if self.request.user.groups.all().first().name == 'manager_management' or self.request.user.groups.all().first().name == 'teacher_management':
+            return super().dispatch(*args, **kwargs)
+        return render(self.request, 'edu/not_allowed.html')
     
     def get_context_data(self, **kwargs):
         context = super(ShowData, self).get_context_data(**kwargs)
@@ -103,6 +139,7 @@ class ShowData(ListView):
              'classroom': ClassRoom,
              'course': Course,
              'register':Register,
+             'tcc' : TCC,
             }
         search_request = {
             'teacher': TeacherSearchForm,
@@ -110,6 +147,7 @@ class ShowData(ListView):
             'classroom': None,
              'course': None,
              'register':None,
+             'tcc' : None,
 
             }
         try:
@@ -119,15 +157,14 @@ class ShowData(ListView):
                 last_name = self.request.GET.get('last_name')
                 if 'teacher' in model_name :
                     education_degree = self.request.GET.get('education_degree')
-                    education_degree=Q(education_degree= education_degree)
+                    filter_search=Teacher.objects.filter(Q(user__first_name__icontains= first_name) & Q(user__last_name__icontains= last_name) & Q(education_degree= education_degree) )
                     if  self.request.GET.get('education_degree') == 'all':
-                        education_degree= ~Q()
+                        filter_search=Teacher.objects.filter(Q(user__first_name__icontains= first_name) & Q(user__last_name__icontains= last_name))
                 else:
-                    education_degree = None
-                print(education_degree)
+                    filter_search=Student.objects.filter(Q(user__first_name__icontains= first_name) & Q(user__last_name__icontains= last_name))
                 self.model = format_request[model_name]
                 context.update({
-                str(model_name) + 's': self.model.objects.filter(Q(user__first_name__icontains= first_name) & Q(user__last_name__icontains= last_name) &  education_degree ),
+                str(model_name) + 's': filter_search ,
                 'search': search_request[model_name],
                  })
             else:
@@ -164,6 +201,7 @@ class ShowDetail(DetailView):
             'course': Course,
             'classroom': ClassRoom,
             'register':Register,
+            'tcc':TCC,
         }
 
         self.model = format_request[model_name]
@@ -172,6 +210,7 @@ class ShowDetail(DetailView):
 
 
 class ModelUpdateView(UpdateView):
+
     fields = "__all__"
     template_name = "edu/update.html"
     path_name = ''
@@ -180,13 +219,16 @@ class ModelUpdateView(UpdateView):
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
+
     def get_queryset(self):
         list_model = {
             'student': Student,
             'teacher': Teacher,
             'classroom': ClassRoom,
             'course': Course,
-            'register':Register, }
+            'register':Register,
+             'tcc':TCC,
+              }
         self.model = list_model[self.request.path[1:self.request.path.index('/', 1)]]
         self.path_name = self.request.path[1:self.request.path.index('/', 1)]
         queryset = super(ModelUpdateView, self).get_queryset()
@@ -216,7 +258,8 @@ class DeleteModelView(DeleteView):
             'teacher': Teacher,
             'classroom': ClassRoom,
             'course': Course,
-            'register':Register, }
+            'register':Register, 
+            'tcc':TCC}
         self.model = list_model[self.request.path[1:self.request.path.index('/', 1)]]
         self.success_url = '/data/?' + self.request.path[1:self.request.path.index('/', 1)] + '='
         self.path_name = self.request.path[1:self.request.path.index('/', 1)]
@@ -229,9 +272,6 @@ class DeleteModelView(DeleteView):
 class LoginViewClass(LoginView):
     template_name="edu/login.html"
 
-
-
-
 def api_show(request):
     list_of_ser={}
     for student in Student.objects.all():
@@ -241,197 +281,6 @@ def api_show(request):
 
 
 
-
-
-######################################  class base view ####################################
-# def student_signup(request):
-#     form = StudentForm()
-#     if request.method == 'POST':
-#         form = StudentForm(request.POST)
-#         if form.is_valid():
-#             print(form)
-#             print(form.cleaned_data)
-#             # student = form.save(commit=False)
-#             # student.sid = get_sid()
-#             # student.save()
-#
-#         else:
-#             return render(request, 'edu/new.html', {'StudentForm': form})
-#     else:
-#         user = User.objects.filter(username=request.user).first()
-#         print(user)
-#         # form = StudentForm(instance=)
-#         return render(request, 'edu/new.html', {'StudentForm': form})
-
-
-def get_date_time():
-    now = jdatetime.datetime.now()
-    datetime, time = str(now).split()
-    time = time[:5]
-    year, month, day = datetime.split('-')
-    year, month, day = persian.enToPersianNumb(year), persian.enToPersianNumb(month), persian.enToPersianNumb(day)
-    hour, minute = time.split(":")
-    hour, minute = persian.enToPersianNumb(hour), persian.enToPersianNumb(minute)
-    datetime = day + '-' + month + '-' + year  # i change day and year to show in true format
-    time = hour + ':' + minute
-
-    return f"امروز {datetime} ساعت {time}"
-
-
-def show_data(request):
-    if 'student' in request.GET:
-        return render(request, 'edu/show_data.html',
-                      context={'students': Student.objects.all(), 'date': get_date_time()})
-    elif 'teacher' in request.GET:
-        teachers = []
-        for teacher in Teacher.objects.all():
-            new_teacher_add = dict(
-                id=teacher.id,
-                name=teacher.user.first_name,
-                family=teacher.user.last_name,
-                code=teacher.tid,
-                experience=teacher.experience,
-                email=teacher.user.email,
-                classes=",".join(cls.__str__() for cls in teacher.classroom.all()),
-            )
-            teachers.append(new_teacher_add)
-
-        return render(request, 'edu/show_data.html', context={'teachers': teachers, 'date': get_date_time()})
-    elif 'course' in request.GET:
-        return render(request, 'edu/show_data.html', context={'courses': Course.objects.all(), 'date': get_date_time()})
-    elif 'classroom' in request.GET:
-        return render(request, 'edu/show_data.html',
-                      context={'order_classrooms': ClassRoom.objects.order_by('field'), 'date': get_date_time()})
-
-
-def get_student_code():
-    sid = '98'
-    for _ in range(10):
-        sid += str(randint(1, 9))
-
-    return int(sid)
-
-
-def new_student(request):
-    form = NewStudent
-    if request.method == "POST":
-        form = NewStudent(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            c = ClassRoom.objects.get_or_create(
-                level=data.get('level'),
-                group=data.get('group'),
-                field=data.get('field'),
-            )[0]
-
-            user = User.objects.create(
-                username=data.get('username'),
-                password=make_password(data.get('password')),
-                first_name=data.get('name'),
-                last_name=data.get('family'),
-                email=data.get('email'),
-            )
-            user.save()
-
-            s = Student.objects.create(
-                user=user,
-                classroom=c,
-                sid=get_student_code(),
-            )
-            s.save()
-
-            return render(request, 'edu/base.html', context={'msg': f"{s} اضافه شد به {c}", 'date': get_date_time()})
-        else:
-            return render(request, 'edu/new.html',
-                          context={'StudentForm': form, 'classrooms': ClassRoom.objects.all(), 'date': get_date_time()})
-    else:
-        return render(request, 'edu/new.html',
-                      context={'StudentForm': form, 'classrooms': ClassRoom.objects.all(), 'date': get_date_time()})
-
-
-def get_teacher_code():
-    code = '9830'
-    for _ in range(8):
-        code += str(randint(0, 9))
-
-    return code
-
-
-def new_teacher(request):
-    form = NewTeacher()
-    if request.method == 'POST':
-        form = NewTeacher(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            classes_objects = [ClassRoom.objects.filter(id=id).first() for id in data.get('classroom')]
-            user = User.objects.create(
-                username=data.get('username'),
-                password=make_password(data.get('password')),
-                first_name=data.get('name'),
-                last_name=data.get('family'),
-                email=data.get('email'),
-            )
-            user.save()
-            t = Teacher.objects.create(
-                user=user,
-                hire_date=data.get('hire_date'),
-                education_degree=data.get('education_degree'),
-                profession=Course.objects.filter(id=data.get('course')).first(),
-                tid=get_teacher_code(),
-            )
-            t.save()
-            for chosen_class in classes_objects:
-                t.classroom.add(chosen_class)
-                t.save()
-            return render(request, 'edu/base.html',
-                          context={'msg': f"{user.first_name + ' ' + user.last_name} اضافه شد به معلمین ",
-                                   'date': get_date_time()})
-        else:
-            return render(request, 'edu/new.html',
-                          context={'TeacherForm': form, 'teachers': Teacher.objects.all(), 'date': get_date_time()})
-    else:
-        return render(request, 'edu/new.html',
-                      context={'TeacherForm': form, 'teachers': Teacher.objects.all(), 'date': get_date_time()})
-
-
-def new_course(request):
-    form = NewCourse()
-    if request.method == "POST":
-        form = NewCourse(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            new_course_add = Course.objects.get_or_create(
-                course_name=data.get('name'),
-            )[0]
-            return render(request, 'edu/base.html',
-                          context={'msg': new_course_add.__str__() + " اکنون موجود است ", 'date': get_date_time()})
-        else:
-            return render(request, 'edu/new.html',
-                          context={'CourseForm': form, 'courses': Course.objects.all(), 'date': get_date_time()})
-    else:
-        return render(request, 'edu/new.html',
-                      context={'CourseForm': form, 'courses': Course.objects.all(), 'date': get_date_time()})
-
-
-def new_classroom(request):
-    form = NewClassRoom()
-    if request.method == 'POST':
-        form = NewClassRoom(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            new_class_room = ClassRoom.objects.get_or_create(
-                level=data.get('level'),
-                group=data.get('group'),
-                field=data.get('field')
-            )[0]
-            return render(request, 'edu/base.html',
-                          context={'msg': new_class_room.__str__() + ' اکنون موجود است', 'date': get_date_time()})
-        else:
-            return render(request, 'edu/new.html',
-                          context={'ClassFrom': form, 'classrooms': ClassRoom.objects.all(), 'date': get_date_time()})
-    else:
-        return render(request, 'edu/new.html',
-                      context={'ClassFrom': form, 'classrooms': ClassRoom.objects.all(), 'date': get_date_time()})
 
 
 @login_required(login_url='/login/')
@@ -471,3 +320,11 @@ def salary(request):
     else:
         return render(request, 'edu/salary.html',
                       context={'form': form, 'date': get_date_time(), 'msg': 'برای دسترسی باید وارد شوید'})
+
+
+def get_student_code():
+    code =''
+    for _ in range(5):
+        code += str(randint(0, 9))
+    
+    return int(code)

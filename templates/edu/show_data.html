@@ -41,6 +41,7 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
 
                     <thead>
+                        <th>تصویر دانش آموز</th>
                         <th>آي دی</th>
                         <th>نام</th>
                         <th>نام خانوادگی</th>
@@ -55,6 +56,7 @@
                     </thead>
                     {% for student in students %}
                     <tr role="button" data-href="{% url 'student-view' student.id %}">
+                        <td><img src="{{ student.profile_image.url }}" alt="تصویر یافت نشد" height="64px" width="64px"></td>
                         <td>{{ student.id }}</td>
                         <td>{{ student.user.first_name }}</td>
                         <td>{{ student.user.last_name }}</td>
@@ -111,7 +113,7 @@
                         <td>{{ teacher.tid }}</td>
                         <td>{{ teacher.experience }}</td>
                         <td>{{ teacher.user.email }}</td>
-                        <td>{{ teacher.classes }}</td>
+                        <td>{{ teacher.classroom.all.0 }}</td>
                         <td><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-teacher' teacher.id %}"></a>
                         </td>
                         <td><a class="fas fa-trash" href="{%  url 'delete-teacher' teacher.id %}"></a>
@@ -226,7 +228,43 @@
         </div>
     </div>
 
-    </div> {% endif %}
+    </div> 
+    {% endif %}
+
+    {% if tccs %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">  جدول دروس معلمین</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+
+                    <thead>
+                        <th>آی دی</th>
+                        <th>معلم</th>
+                        <th>کلاس </th>
+                        <th colspan="2">ویرایش / حذف</th>
+                    </thead>
+                    {% for tcc in tccs %}
+                    <tr role="button" data-href="{% url 'tcc-view' tcc.id %}">
+                        <td>{{ tcc.id }}</td>
+                        <td>{{ tcc.teacher }}</td>
+                        <td>{{ tcc.classroom }}</td>
+                        <td><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-tcc' tcc.id %}"></a></td>
+                        <td><a class="fas fa-trash" href="{%  url 'delete-tcc' tcc.id %}"></a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    </div> 
+    {% endif %}
+
 
 </center>
 

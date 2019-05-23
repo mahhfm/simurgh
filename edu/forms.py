@@ -1,8 +1,8 @@
 from django import forms
-from .models import Student, Teacher, ClassRoom, Course, Register
+from .models import Student, Teacher, ClassRoom, Course, Register , User, TCC
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
-
+from django.contrib.auth.hashers import make_password
 class TeacherSearchForm(forms.Form):
     BACHELOR, MA, PHD, ALL  = 'ba', 'ma', 'phd', 'all'
     DEGREE_CHOICES = (
@@ -22,46 +22,73 @@ class StudentSearchForm(forms.Form):
     model_name = forms.CharField(max_length=20,widget=forms.HiddenInput(),initial='student')
 
 class TeacherForm(forms.ModelForm):
+    username = forms.CharField(max_length=155, label='نام کاربری')
+    first_name = forms.CharField(max_length=155, label='نام')
+    last_name = forms.CharField(max_length=155, label='نام خانوادگی')
+    email = forms.EmailField(max_length=155, label='ایمیل')
+    password = forms.CharField(widget=forms.PasswordInput, label='رمزعبور')
+    re_password = forms.CharField(widget=forms.PasswordInput, label='تکرار رمزرعبور')
     def clean(self):
-        cleaned_data = self.cleaned_data
-        user = self.cleaned_data['user']
-        group = Group.objects.get(name='teacher_management')
-        user.groups.add(group)
-        return cleaned_data     
+        data = self.cleaned_data
+        print(self.cleaned_data)
+        pass1 = data.get('password')
+        pass2 = data.get('re_password')
+        if pass1 != pass2:
+            raise forms.ValidationError('رمز عبور یکسان نیست')
+        return data     
     class Meta:
         model = Teacher
-        fields = '__all__'
-
+        exclude = ('classroom','user','profession','tid' )
 
 class ClassRoomForm(forms.ModelForm):
     class Meta:
         model = ClassRoom
         fields = '__all__'
 
+class TCCForm(forms.ModelForm):
+    class Meta:
+        model = TCC
+        fields = '__all__'
 
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
         fields = '__all__'
 class RegisterForm(forms.ModelForm):
+    def form_valid(self):
+        print("This is save test")
     class Meta:
         model = Register
         fields = '__all__'
         # fields=['student','classroom','active']
 
-class StudentForm(forms.ModelForm):
-    def clean(self):
-        cleaned_data = self.cleaned_data
-        user = self.cleaned_data['user']
-        group = Group.objects.get(name='student_management')
-        user.groups.add(group)
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = '__all__'
 
-        return cleaned_data 
+class StudentForm(forms.ModelForm):
+    username = forms.CharField(max_length=155, label='نام کاربری')
+    first_name = forms.CharField(max_length=155, label='نام')
+    last_name = forms.CharField(max_length=155, label='نام خانوادگی')
+    email = forms.EmailField(max_length=155, label='ایمیل')
+    password = forms.CharField(widget=forms.PasswordInput, label='رمزعبور')
+    re_password = forms.CharField(widget=forms.PasswordInput, label='تکرار رمزرعبور')
+    def clean(self):
+        data = self.cleaned_data
+        print(self.cleaned_data)
+        pass1 = data.get('password')
+        pass2 = data.get('re_password')
+        if pass1 != pass2:
+            raise forms.ValidationError('رمز عبور یکسان نیست')
+        return data 
 
     class Meta:
         model = Student
-        fields = '__all__'
+        exclude = ( 'sid','classroom', 'courses', 'user')
 
+        
+        
 
 
 class Salary(forms.Form):

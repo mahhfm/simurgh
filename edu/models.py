@@ -100,7 +100,7 @@ class Teacher(Origin):
         (MA, "فوق لیسانس"),
         (PHD, "دکتری"),
     )
-    user = models.ForeignKey(User, on_delete=models.CASCADE, db_constraint=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, db_constraint=False)
     hire_date = models.DateField(default=timezone.now)
     education_degree = models.CharField(max_length=155, choices=DEGREE_CHOICES)
     profession = models.ManyToManyField("Course")
@@ -122,10 +122,11 @@ class Teacher(Origin):
 
 
 class Student(Origin):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, db_constraint=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, db_constraint=False)
     classroom = models.ManyToManyField("ClassRoom", through="Register")
     sid = models.BigIntegerField(unique=True)
     courses = models.ManyToManyField("Course", through="StudentCourse")
+    profile_image =  models.ImageField(upload_to='profiles/' , default='/profiles/defaults.png')
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name + " " + str(persian.enToPersianNumb(self.sid))
@@ -160,4 +161,4 @@ class TCC(Origin):
     class_time = models.CharField(max_length=155)
 
     def __str__(self):
-        return self.teacher.name + " " + self.course.__str__() + " " + self.classroom.__str__()
+        return self.teacher.user.first_name + " " + self.course.__str__() + " " + self.classroom.__str__()
