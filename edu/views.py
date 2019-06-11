@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import Teacher, ClassRoom, Student, Course, Register, TCC
+from .models import Teacher, ClassRoom, Student, Course, Register, TCC , Parent , StudentAttendance , TeacherAttendance , StudentCourse
 from django.urls import reverse_lazy
 from .forms import *
 from django.http import HttpResponseRedirect, HttpResponse
@@ -47,9 +47,10 @@ class ModelCreateView(CreateView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        if self.request.user.groups.all().first().name == 'manager_management':
+        if self.request.user.groups.all().first().name == 'manager_management' or  self.request.user.groups.all().first().name == 'teacher_management':
             return super().dispatch(*args, **kwargs)
         return render(self.request, 'edu/not_allowed.html')
+
 
     def sid(self):
         code = ''
@@ -60,7 +61,7 @@ class ModelCreateView(CreateView):
         return code
 
     def form_valid(self, form):
-        if  'student' in self.request.path :
+        if   self.request.path.strip("/")=='student' :
             data = form.cleaned_data
             new_user = User.objects.create(
                 username=data.pop('username'),
@@ -94,6 +95,23 @@ class ModelCreateView(CreateView):
             group = Group.objects.get(name='teacher_management')
             group.user_set.add(new_student.user)
             group.save()
+        if 'parent' in self.request.path:
+            data = form.cleaned_data
+            new_user = User.objects.create(
+                username=data.pop('username'),
+                first_name=data.pop('first_name'),
+                last_name=data.pop('last_name'),
+                email=data.pop('email'),
+                password=make_password(data.pop('password')),
+            )
+            data.pop('re_password'),
+            new_student = form.save(commit=False)
+            new_student.user = new_user
+            new_student.tid = get_student_code()
+            new_student.save()
+            group = Group.objects.get(name='parent_management')
+            group.user_set.add(new_student.user)
+            group.save()
         super().form_valid(form)
         return render(self.request, self.template_name, context={'create_message': 'با موفقیت اضافه شد '})
         # return HttpResponseRedirect(self.get_success_url())
@@ -105,6 +123,7 @@ class ModelCreateView(CreateView):
         # self.request.user.save()
         # return super(StudentCreateView, self).form_valid(form)
 
+
     def get_form(self, form_class=None):
         print(self.request)
         form_request = {
@@ -113,11 +132,17 @@ class ModelCreateView(CreateView):
             'classroom': ClassRoomForm,
             'course': CourseForm,
             'register':RegisterForm,
-            'tcc': TCCForm, }
-
+            'tcc': TCCForm,
+            'parent':ParentForm,
+            'studentattendance':StudentAttendanceForm,
+            'teacherattendance':TeacherAttendanceForm,
+            'studentcourse':StudentCourseForm,
+             }
         form_class = form_request[self.request.path.strip('/')]
-        print(form_class)
-        return form_class(**self.get_form_kwargs())
+        # if form_class == StudentAttendanceForm:
+        #     return form_class(user='m.asadi',**self.get_form_kwargs())
+        return form_class(**self.get_form_kwargs())     
+
 
 
 class ShowData(ListView):
@@ -127,9 +152,10 @@ class ShowData(ListView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        if self.request.user.groups.all().first().name == 'manager_management' or self.request.user.groups.all().first().name == 'teacher_management':
-            return super().dispatch(*args, **kwargs)
-        return render(self.request, 'edu/not_allowed.html')
+        # if self.request.user.groups.all().first().name == 'manager_management' or self.request.user.groups.all().first().name == 'teacher_management'or self.request.user.groups.all().first().name == 'student_management':
+        #     return super().dispatch(*args, **kwargs)
+        # return render(self.request, 'edu/not_allowed.html')
+        return super().dispatch(*args, **kwargs)
     
     def get_context_data(self, **kwargs):
         context = super(ShowData, self).get_context_data(**kwargs)
@@ -140,6 +166,10 @@ class ShowData(ListView):
              'course': Course,
              'register':Register,
              'tcc' : TCC,
+             'parent':Parent,
+             'studentattendance':StudentAttendance,
+             'teacherattendance':TeacherAttendance,
+             'studentcourse':StudentCourse,
             }
         search_request = {
             'teacher': TeacherSearchForm,
@@ -148,6 +178,10 @@ class ShowData(ListView):
              'course': None,
              'register':None,
              'tcc' : None,
+             'parent':None,
+             'studentattendance':None,
+             'teacherattendance':None,
+             'studentcourse':None,
 
             }
         try:
@@ -169,11 +203,26 @@ class ShowData(ListView):
                  })
             else:
                 model_name = [key for key in dict(self.request.GET)][0]
-
-                self.model = format_request[model_name]             
+                self.model = format_request[model_name]   
+                data_query=self.model.objects.all() 
+                if self.request.user.groups.all().first().name == 'teacher_management':
+                    if model_name == 'tcc':
+                        data_query=self.model.objects.filter(teacher=Teacher.objects.get(user=self.request.user))
+                    if model_name == 'student':
+                        data_query=self.model.objects.filter(classroom=TCC.objects.get(teacher=Teacher.objects.get(user__username=self.request.user.username)).classroom)
+                    if model_name == 'studentattendance':
+                        data_query=self.model.objects.filter(register__classroom=TCC.objects.get(teacher=Teacher.objects.get(user__username=self.request.user.username)).classroom)
+                elif self.request.user.groups.all().first().name == 'student_management':
+                    if model_name == 'register':
+                        data_query=self.model.objects.filter(student__user__username=self.request.user.username, active=True)
+                    if model_name == 'studentattendance':
+                        data_query=self.model.objects.filter(register__student__user__username=self.request.user.username)
+                else: 
+                    data_query=self.model.objects.all()
+        
                 context.update({
-                    str(model_name) + 's': self.model.objects.all(),
-                    'search': search_request[model_name] ,
+                        str(model_name) + 's':set(data_query) ,
+                        'search': search_request[model_name] ,
                 })
 
         except IndexError:
@@ -202,6 +251,11 @@ class ShowDetail(DetailView):
             'classroom': ClassRoom,
             'register':Register,
             'tcc':TCC,
+            'parent':Parent,
+            'studentattendance':StudentAttendance,
+            'teacherattendance':TeacherAttendance,
+            'studentcourse':StudentCourse,
+            
         }
 
         self.model = format_request[model_name]
@@ -219,7 +273,6 @@ class ModelUpdateView(UpdateView):
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
-
     def get_queryset(self):
         list_model = {
             'student': Student,
@@ -228,6 +281,10 @@ class ModelUpdateView(UpdateView):
             'course': Course,
             'register':Register,
              'tcc':TCC,
+             'parent':Parent,
+             'studentattendance':StudentAttendance,
+             'teacherattendance':TeacherAttendance,
+             'studentcourse':StudentCourse,
               }
         self.model = list_model[self.request.path[1:self.request.path.index('/', 1)]]
         self.path_name = self.request.path[1:self.request.path.index('/', 1)]
@@ -259,7 +316,12 @@ class DeleteModelView(DeleteView):
             'classroom': ClassRoom,
             'course': Course,
             'register':Register, 
-            'tcc':TCC}
+            'tcc':TCC,
+            'parent':Parent,
+            'studentattendance':StudentAttendance,
+            'teacherattendance':TeacherAttendance,
+            'studentcourse':StudentCourse,
+            }
         self.model = list_model[self.request.path[1:self.request.path.index('/', 1)]]
         self.success_url = '/data/?' + self.request.path[1:self.request.path.index('/', 1)] + '='
         self.path_name = self.request.path[1:self.request.path.index('/', 1)]

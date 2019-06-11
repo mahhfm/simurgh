@@ -162,3 +162,22 @@ class TCC(Origin):
 
     def __str__(self):
         return self.teacher.user.first_name + " " + self.course.__str__() + " " + self.classroom.__str__()
+
+
+class Parent(Origin):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, db_constraint=False)
+    related_student=models.ForeignKey("Student", on_delete=models.CASCADE, db_constraint=False)
+
+
+class StudentAttendance(Origin):
+    register = models.ForeignKey("Register", on_delete=models.CASCADE, db_constraint=False)
+    present = models.BooleanField()
+    present_date = models.DateField(default=timezone.now)
+    def __str__(self):
+        return str(self.register.student.user) + " " + str(self.register.classroom)
+    
+class TeacherAttendance(Origin):
+    teacher = models.ForeignKey("Teacher", on_delete=models.CASCADE, db_constraint=False)
+    present = models.BooleanField()
+    present_date = models.DateField(default=timezone.now)
+

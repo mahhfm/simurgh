@@ -48,6 +48,7 @@
                         <th>شماره دانش آموزی</th>
                         <th>کلاس</th>
                         <th>ایمیل</th>
+                        <th>حضور و غیاب</th>
                         <th>جزیات دانش آموز</th>
                         {% if  perms.edu.manager_management %}
                         <th>ویرایش</th>
@@ -63,6 +64,8 @@
                         <td>{{ student.sid }}</td>
                         <td>{{ student.classroom.level_field }}  {{ student.classroom.branch }} </td>
                         <td>{{ student.user.email }}</td>
+                        <td><a href="{%  url 'new-studentattendance'%}"> ثبت حضوری</a></td>
+
                         <td><a class="fas fa-info-circle" href="{% url 'student-view' student.id %}"></a></td>
                           {% if  perms.edu.manager_management %}
                         <td><a class="glyphicon glyphicon-pencil" href="{%  url 'update-student' student.id %}"></a>
@@ -103,6 +106,9 @@
                         <th>سابقه</th>
                         <th>ایمیل</th>
                         <th>کلاس ها</th>
+                        {% if  perms.edu.manager_management %}
+                        <th>ثبت حضوری</th>
+                        {% endif %}
                         <th colspan="2">ویرایش / حذف</th>
                     </thead>
                     {% for teacher in teachers %}
@@ -114,6 +120,9 @@
                         <td>{{ teacher.experience }}</td>
                         <td>{{ teacher.user.email }}</td>
                         <td>{{ teacher.classroom.all.0 }}</td>
+                        {% if  perms.edu.manager_management %}
+                        <td><a href="{%  url 'new-teacherattendance'%}"> ثبت حضوری</a></td>
+                        {% endif %}
                         <td><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-teacher' teacher.id %}"></a>
                         </td>
                         <td><a class="fas fa-trash" href="{%  url 'delete-teacher' teacher.id %}"></a>
@@ -210,6 +219,12 @@
                         <th>آی دی</th>
                         <th>دانش آموز</th>
                         <th>کلاس </th>
+                        {% if  perms.edu.manager_management %}
+                        <th>وضعیت</th>
+                        {% endif %}
+                        {% if  perms.edu.teacher_management or perms.edu.teacher_management %}
+                        <th>ثبت نمره</th>
+                        {%  endif %}
                         <th colspan="2">ویرایش / حذف</th>
                     </thead>
                     {% for register in registers %}
@@ -217,6 +232,13 @@
                         <td>{{ register.id }}</td>
                         <td>{{ register.student }}</td>
                         <td>{{ register.classroom }}</td>
+                        {% if  perms.edu.manager_management %}
+                        <td>{{ register.active }}</td>
+                        {%  endif %}
+                        {% if  perms.edu.teacher_management or perms.edu.teacher_management %}
+                        <td><a href="{%  url 'new-studentcourse'  %}">ثبت نمره</a></td>
+                        {%  endif %}
+                        
                         <td><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-register' register.id %}"></a></td>
                         <td><a class="fas fa-trash" href="{%  url 'delete-register' register.id %}"></a></td>
                     </tr>
@@ -266,6 +288,163 @@
     {% endif %}
 
 
+    {% if parents %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">  جدول والدین</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+
+                    <thead>
+                        <th>آی دی</th>
+                        <th>نام کاربری</th>
+                        <th>دانش آموز مربوطه </th>
+                        <th colspan="2">ویرایش / حذف</th>
+                    </thead>
+                    {% for parent in parents %}
+                    <tr role="button" data-href="{% url 'parent-view' parent.id %}">
+                        <td>{{ parent.id }}</td>
+                        <td>{{ parent.user }}</td>
+                        <td>{{ parent.related_student }}</td>
+                        <td><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-parent' parent.id %}"></a></td>
+                        <td><a class="fas fa-trash" href="{%  url 'delete-parent' parent.id %}"></a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    </div> 
+    {% endif %}
+
+
+
+    {% if studentattendances %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">  جدول حضور غیاب دانش آموزان</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+
+                    <thead>
+                        <th>آی دی</th>
+                        <th>نام دانش آموز</th>
+                        <th>کلاس مربوط  </th>
+                        <th>وضعیت حضوری  </th>
+                        <th>تاریخ حضوری  </th>
+
+
+                        <th colspan="2">ویرایش / حذف</th>
+                    </thead>
+                    {% for studentattendance in studentattendances %}
+                    <tr role="button" data-href="{% url 'studentattendance-view' studentattendance.id %}">
+                        <td>{{ studentattendance.id }}</td>
+                        <td>{{ studentattendance.register.student }}</td>
+                        <td>{{ studentattendance.register.classroom }}</td>
+                        <td>{{ studentattendance.present }}</td>
+                        <td>{{ studentattendance.present_date }}</td>
+
+                        <td><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-studentattendance' studentattendance.id %}"></a></td>
+                        <td><a class="fas fa-trash" href="{%  url 'delete-studentattendance' studentattendance.id %}"></a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    </div> 
+    {% endif %}
+
+    {% if teacherattendances %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">  جدول حضور و غیاب معلمین</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+
+                    <thead>
+                        <th>آی دی</th>
+                        <th>نام معلم</th>
+                        <th>وضعیت حضوری  </th>
+                        <th>تاریخ حضوری  </th>
+
+                        <th colspan="2">ویرایش / حذف</th>
+                    </thead>
+                    {% for teacherattendance in teacherattendances %}
+                    <tr role="button" data-href="{% url 'teacherattendance-view' teacherattendance.id %}">
+                        <td>{{ teacherattendance.id }}</td>
+                        <td>{{ teacherattendance.teacher }}</td>
+                        <td>{{ teacherattendance.present }}</td>
+                        <td>{{ teacherattendance.present_date }}</td>
+
+                        <td><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-teacherattendance' teacherattendance.id %}"></a></td>
+                        <td><a class="fas fa-trash" href="{%  url 'delete-teacherattendance' teacherattendance.id %}"></a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    </div> 
+    {% endif %}
+
+
+    {% if studentcourses %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">  جدول نمرات دانش آموزان</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+
+                    <thead>
+                        <th>آی دی</th>
+                        <th>نام دانش آموز</th>
+                        <th>کلاس درس  </th>
+                        <th>نمره میان ترم</th>
+                        <th>نمره نهایی</th>
+
+
+                        <th colspan="2">ویرایش / حذف</th>
+                    </thead>
+                    {% for studentcourse in studentcourses %}
+                    <tr role="button" data-href="{% url 'studentcourse-view' studentcourse.id %}">
+                        <td>{{ studentcourse.id }}</td>
+                        <td>{{ studentcourse.student }}</td>
+                        <td>{{ studentcourse.classroom.classroom }}</td>
+                        <td>{{ studentcourse.mid_grade }}</td>
+                        <td>{{ studentcourse.final_grade }}</td>
+
+
+                        <td><a class="	glyphicon glyphicon-pencil" href="{%  url 'update-studentcourse' studentcourse.id %}"></a></td>
+                        <td><a class="fas fa-trash" href="{%  url 'delete-studentcourse' studentcourse.id %}"></a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    </div> 
+    {% endif %}
 </center>
 
 

@@ -27,5 +27,10 @@ admin.site.register(models.LevelField)
 admin.site.register(models.StudentCourse)
 admin.site.register(models.Register)
 admin.site.register(models.TCC)
+admin.site.register(models.TeacherAttendance)
+admin.site.register(models.StudentAttendance)
+admin.site.register(models.Parent)
+
+
 
 

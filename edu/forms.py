@@ -1,5 +1,5 @@
 from django import forms
-from .models import Student, Teacher, ClassRoom, Course, Register , User, TCC
+from .models import *
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from django.contrib.auth.hashers import make_password
@@ -67,6 +67,42 @@ class UserForm(forms.ModelForm):
         model = User
         fields = '__all__'
 
+class StudentAttendanceForm(forms.ModelForm):
+    # def __init__(self,user, *args, **kwargs):
+    #     super(StudentAttendanceForm, self).__init__(*args, **kwargs)
+    #     self.fields['register'] = forms.ChoiceField(
+    #         choices=[(o.id, str(o.classroom)) for o in Register.objects.filter(student__user__username=user)]
+    #     )
+    class Meta:
+        model = StudentAttendance
+        fields = '__all__'
+
+
+class TeacherAttendanceForm(forms.ModelForm):
+    class Meta:
+        model = TeacherAttendance
+        fields = '__all__'
+
+
+class ParentForm(forms.ModelForm):
+    username = forms.CharField(max_length=155, label='نام کاربری')
+    first_name = forms.CharField(max_length=155, label='نام')
+    last_name = forms.CharField(max_length=155, label='نام خانوادگی')
+    email = forms.EmailField(max_length=155, label='ایمیل')
+    password = forms.CharField(widget=forms.PasswordInput, label='رمزعبور')
+    re_password = forms.CharField(widget=forms.PasswordInput, label='تکرار رمزرعبور')
+    def clean(self):
+        data = self.cleaned_data
+        print(self.cleaned_data)
+        pass1 = data.get('password')
+        pass2 = data.get('re_password')
+        if pass1 != pass2:
+            raise forms.ValidationError('رمز عبور یکسان نیست')
+        return data     
+    class Meta:
+        model = Parent
+        exclude =  ('user',)
+
 class StudentForm(forms.ModelForm):
     username = forms.CharField(max_length=155, label='نام کاربری')
     first_name = forms.CharField(max_length=155, label='نام')
@@ -88,7 +124,10 @@ class StudentForm(forms.ModelForm):
         exclude = ( 'sid','classroom', 'courses', 'user')
 
         
-        
+class StudentCourseForm(forms.ModelForm):
+    class Meta:
+        model = StudentCourse
+        fields = '__all__'
 
 
 class Salary(forms.Form):
